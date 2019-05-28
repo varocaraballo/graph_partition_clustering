@@ -6,7 +6,7 @@ from common import bottom_up
 import fixed_k
 import estimate_k
 
-def getclusters(sm: list, k: int = None)->(float, list):
+def getclustering(sm: list, k: int = None)->(float, list):
     """Given an NxN normalized similarity matrix computes a clustering of the elements {0,...,N-1}.
     
         Parameters:        
@@ -76,7 +76,7 @@ def getclusters(sm: list, k: int = None)->(float, list):
             if root_table[(k,mu)][1]<best:
                 best = root_table[(k,mu)][1]
                 best_key = (k,mu)        
-        return best, list(get_clustering(trees_tables, 0, best_key, len(weights)-1))
+        return best, list(retrieve_clusters(trees_tables, 0, best_key, len(weights)-1))
     else:
         trees_tables = {}
         trees_l_mu = {}
@@ -103,10 +103,10 @@ def getclusters(sm: list, k: int = None)->(float, list):
             if root_table[(1,mu)][1]<best:
                 best = root_table[(1,mu)][1]
                 best_key = (1,mu)        
-        return best, list(get_clustering(trees_tables, 0, best_key, len(weights)-1))
+        return best, list(retrieve_clusters(trees_tables, 0, best_key, len(weights)-1))
     
 
-def get_clustering(trees_tables: dict, t_key: int or tuple, p_key: tuple, edge_1: int, s: set = None) -> collections.deque:
+def retrieve_clusters(trees_tables: dict, t_key: int or tuple, p_key: tuple, edge_1: int, s: set = None) -> collections.deque:
     l = collections.deque()
     if s is None:
         s = set()
@@ -117,12 +117,12 @@ def get_clustering(trees_tables: dict, t_key: int or tuple, p_key: tuple, edge_1
     if tpl[2] is not None:
         if tpl[2][0] == 1:
             if p_key[1] == edge_1:
-                l.extend(get_clustering(trees_tables, tpl[2][1], tpl[3], edge_1))
+                l.extend(retrieve_clusters(trees_tables, tpl[2][1], tpl[3], edge_1))
             else:
-                l.extend(get_clustering(trees_tables, tpl[2][1], tpl[3], edge_1, s))
+                l.extend(retrieve_clusters(trees_tables, tpl[2][1], tpl[3], edge_1, s))
         else:
-            l.extend(get_clustering(trees_tables, tpl[2][1], tpl[3][0], edge_1, s))
-            l.extend(get_clustering(trees_tables, tpl[2][2], tpl[3][1], edge_1, s))
+            l.extend(retrieve_clusters(trees_tables, tpl[2][1], tpl[3][0], edge_1, s))
+            l.extend(retrieve_clusters(trees_tables, tpl[2][2], tpl[3][1], edge_1, s))
     return l
 
     

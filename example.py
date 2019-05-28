@@ -11,12 +11,12 @@ for i in range(n):
         s[i,j] = 0
 
 start_time = time.time()
-q, k_clustering = main.getclusters(s,k)
+q, k_clustering = main.getclustering(s,k)
 elapsed_time = time.time() - start_time
 print((q, k_clustering, elapsed_time))
 
 
 start_time = time.time()
-q1, clustering = main.getclusters(s)
+q1, clustering = main.getclustering(s)
 elapsed_time = time.time() - start_time
 print((q1, clustering, elapsed_time))
