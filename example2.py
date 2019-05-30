@@ -30,9 +30,9 @@ colors = [(0.2, 0.5, 0.9), 'k', 'r']
 plt.figure(figsize=(10, 4))
 plt.subplot(1, 2, 1)
 for i in range(len(k_clustering)):
-    plt.scatter([points[j][0] for j in k_clustering[i]], [points[j][1] for j in k_clustering[i]], 
-                marker = markers[i],
-                edgecolor = colors[i],
+    plt.scatter(points[i][0], points[i][1], 
+                marker = markers[k_clustering[i]],
+                edgecolor = colors[k_clustering[i]],
                 facecolor='white')
 plt.title('proposed algorithm')
     

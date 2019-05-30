@@ -18,9 +18,10 @@ def getclustering(sm: list, k: int = None)->(float, list):
         
         Returns:
         --------
-        C : set
-            C is a set of k sets of integers, where every set in C is a cluster, i.e.: assuming as input a 5x5 matrix and k=2, a possible returns is {{0,1,4},{2,3}}.
-            If k is not given the number of sets in C is the value of k that minimizes P.
+        q : float
+            Quality measure of the optimum clustering
+        C : list
+            C is a list of length N with values from 0 to k-1 representing the k clusters. If C[i]=C[j]=l it means that the elements i and j are in the same cluster with label l.
         """
     from scipy.sparse import csr_matrix, lil_matrix
     from scipy.sparse.csgraph import minimum_spanning_tree 
@@ -76,7 +77,7 @@ def getclustering(sm: list, k: int = None)->(float, list):
             if root_table[(k,mu)][1]<best:
                 best = root_table[(k,mu)][1]
                 best_key = (k,mu)        
-        return best, list(retrieve_clusters(trees_tables, 0, best_key, len(weights)-1))
+        return best, retrieve_clusters(trees_tables, 0, best_key, len(weights)-1, 0, False, [0]*n)
     else:
         trees_tables = {}
         trees_l_mu = {}
@@ -102,29 +103,26 @@ def getclustering(sm: list, k: int = None)->(float, list):
         for mu in root_l_mu[1]:
             if root_table[(1,mu)][1]<best:
                 best = root_table[(1,mu)][1]
-                best_key = (1,mu)        
-        return best, list(retrieve_clusters(trees_tables, 0, best_key, len(weights)-1))
+                best_key = (1,mu)
+        return best, retrieve_clusters(trees_tables, 0, best_key, len(weights)-1, 0, False, [0]*n)
     
 
-def retrieve_clusters(trees_tables: dict, t_key: int or tuple, p_key: tuple, edge_1: int, s: set = None) -> collections.deque:
-    l = collections.deque()
-    if s is None:
-        s = set()
-        l.append(s)
+def retrieve_clusters(trees_tables: dict, t_key: int or tuple, p_key: tuple, edge_1: int, last_cluster: int, create_new_one: bool, labeling: list):
+    if create_new_one:
+        last_cluster += 1
     if type(t_key) is int:
-        s.add(t_key)                
+        labeling[t_key] = last_cluster               
     tpl = trees_tables[t_key][p_key]
     if tpl[2] is not None:
         if tpl[2][0] == 1:
             if p_key[1] == edge_1:
-                l.extend(retrieve_clusters(trees_tables, tpl[2][1], tpl[3], edge_1))
+                retrieve_clusters(trees_tables, tpl[2][1], tpl[3], edge_1, last_cluster, True, labeling)
             else:
-                l.extend(retrieve_clusters(trees_tables, tpl[2][1], tpl[3], edge_1, s))
+                retrieve_clusters(trees_tables, tpl[2][1], tpl[3], edge_1, last_cluster, False, labeling)
         else:
-            l.extend(retrieve_clusters(trees_tables, tpl[2][1], tpl[3][0], edge_1, s))
-            l.extend(retrieve_clusters(trees_tables, tpl[2][2], tpl[3][1], edge_1, s))
-    return l
-
+            retrieve_clusters(trees_tables, tpl[2][1], tpl[3][0], edge_1, last_cluster, False, labeling)
+            retrieve_clusters(trees_tables, tpl[2][2], tpl[3][1], edge_1, last_cluster, False, labeling)
+    return labeling
     
 
     
